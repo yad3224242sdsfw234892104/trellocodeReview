@@ -1,0 +1,91 @@
+package trello.Task1;
+
+import java.time.Duration;
+import org.openqa.selenium.By;
+import org.openqa.selenium.Point;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.annotations.Test;
+
+public class TrelloTask {
+	String chromeDriverFilePath= "C:\\Users\\mandeep\\Desktop\\test\\trello\\src\\main\\resources\\resouces\\chromedriver.exe";
+	String url= "https://trello.com/en/login";
+	int timeOutInSeconds=10;
+	Duration duration = Duration.ofSeconds(timeOutInSeconds);
+
+	String userEmail= "xyz";
+	String password= "xyz";
+
+
+	@Test
+	public void main() throws InterruptedException 
+	{
+		System.setProperty("webdriver.chrome.driver",chromeDriverFilePath);
+		WebDriver driver;
+		driver = new ChromeDriver();
+		driver.manage().window().maximize();
+		driver.get(url);
+		Actions act= new Actions(driver);
+		WebDriverWait wait = new WebDriverWait(driver, duration);
+		wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("user")));
+		driver.findElement(By.id("user")).sendKeys(userEmail);
+		wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//input[@value='Log in with Atlassian']")));
+		driver.findElement(By.xpath("//input[@value='Log in with Atlassian']")).click();
+		wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//input[@name='password']")));
+		driver.findElement(By.xpath("//input[@name='password']")).sendKeys(password);
+		driver.findElement(By.id("login-submit")).click();
+		wait.until(ExpectedConditions.titleIs("Boards | Trello"));
+		driver.findElement(By.xpath("//li[@data-test-id='create-board-tile']//div")).click();
+		wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//input[@data-test-id='create-board-title-input']")));
+		driver.findElement(By.xpath("//input[@data-test-id='create-board-title-input']")).sendKeys("Board 1");
+		wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//button[@data-test-id='create-board-submit-button']")));
+		driver.findElement(By.xpath("//button[@data-test-id='create-board-submit-button']")).click();
+		wait.until(ExpectedConditions.titleIs("Board 1 | Trello"));
+		driver.findElement(By.xpath("//span[text()='Add another list']")).click();
+		driver.findElement(By.xpath("//input[@class='list-name-input']")).sendKeys("List A");
+		driver.findElement(By.xpath("//input[@value='Add list']")).click();
+		driver.findElement(By.xpath("//a[@aria-label='Cancel list editing']")).click();
+		driver.findElement(By.xpath("//h2[text()='List A']")).isDisplayed();
+		System.out.println("List A has been created Successfully");
+		driver.findElement(By.xpath("//span[text()='Add another list']")).click();
+		driver.findElement(By.xpath("//input[@class='list-name-input']")).sendKeys("List B");
+		driver.findElement(By.xpath("//input[@value='Add list']")).click();
+		driver.findElement(By.xpath("//h2[text()='List B']")).isDisplayed();
+		System.out.println("List B has been created Successfully");
+		wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//a[@aria-label='Cancel list editing']")));
+		driver.findElement(By.xpath("//a[@aria-label='Cancel list editing']")).click();
+		Thread.sleep(3000);
+		wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//h2[text()='List A']//parent::div//following-sibling::div//span[text()='Add a card']")));
+		driver.findElement(By.xpath("//h2[text()='List A']//parent::div//following-sibling::div//span[text()='Add a card']")).click();
+		Thread.sleep(3000);
+		driver.findElement(By.xpath("//textarea[@placeholder='Enter a title for this card…']")).sendKeys("Card A");
+		driver.findElement(By.xpath("//input[@value='Add card']")).click();
+		driver.findElement(By.xpath("//a[@class='icon-lg icon-close dark-hover js-cancel']")).click();
+		driver.findElement(By.xpath("//span[text()='Card A']//parent::div//parent::a//parent::div//preceding-sibling::div//textarea[text()='List A']")).isDisplayed();
+		System.out.println("Card A Created Succesfully");
+		WebElement cardA= driver.findElement(By.xpath("//span[text()='Card A']//parent::div//parent::a"));
+		WebElement listBTarget= driver.findElement(By.xpath("//h2[text()='List B']//parent::div//following-sibling::div[@class='list-cards u-fancy-scrollbar u-clearfix js-list-cards js-sortable ui-sortable']"));
+		act.dragAndDrop(cardA, listBTarget).build().perform();
+		Thread.sleep(3000);
+		driver.findElement(By.xpath("//span[text()='Card A']//parent::div//parent::a//parent::div//preceding-sibling::div//textarea[text()='List B']")).isDisplayed();
+		System.out.println("Card A has been dragged to List B");
+		WebElement cardAListB = driver.findElement(By.xpath("//h2[text()='List B']//parent::div//following-sibling::div//span[text()='Card A']"));
+		Point point = cardAListB.getLocation();
+		System.out.println("X coordinate of Dragged Card:"+ point.getX());
+		System.out.println("Y coordinate of Dragged Card:"+ point.getY());
+		driver.findElement(By.xpath("//button[@data-test-id='header-member-menu-button']")).click();
+		wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(By.xpath("//button[@data-test-id='header-member-menu-logout']//span")));
+		driver.findElement(By.xpath("//button[@data-test-id='header-member-menu-logout']//span")).click();
+		wait.until(ExpectedConditions.titleIs("Log out of your Atlassian account - Log in with Atlassian account"));
+		driver.findElement(By.id("logout-submit")).click();
+		wait.until(ExpectedConditions.titleIs("Manage Your Team’s Projects From Anywhere | Trello"));
+		driver.quit();
+	}
+
+}
+
+ 
